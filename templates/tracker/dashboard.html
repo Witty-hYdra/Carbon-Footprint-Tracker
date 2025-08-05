@@ -141,7 +141,7 @@
                                                 <h6 class="card-title">{{ tip.title }}</h6>
                                                 <p class="card-text text-muted small">{{ tip.description|truncatewords:20 }}</p>
                                                 <div class="d-flex justify-content-between align-items-center">
-                                                    <span class="badge bg-{{ tip.difficulty|yesno:'success,warning,danger' }}">
+                                                    <span class="badge bg-{% if tip.difficulty == 'easy' %}success{% elif tip.difficulty == 'medium' %}warning{% else %}danger{% endif %}">
                                                         {{ tip.get_difficulty_display }}
                                                     </span>
                                                     <small class="text-success">
@@ -203,8 +203,9 @@
                 <h5 class="modal-title">Create New Household</h5>
                 <button type="button" class="btn-close" data-bs-dismiss="modal"></button>
             </div>
-            <form method="post" action="#" id="createHouseholdForm">
+            <form method="post" action="{% url 'dashboard' %}" id="createHouseholdForm">
                 {% csrf_token %}
+                <input type="hidden" name="action" value="create_household">
                 <div class="modal-body">
                     <div class="mb-3">
                         <label for="householdName" class="form-label">Household Name</label>
@@ -278,33 +279,6 @@
             }
         });
     {% endif %}
-
-    // Create Household Form Handler
-    document.getElementById('createHouseholdForm').addEventListener('submit', function(e) {
-        e.preventDefault();
-        
-        const formData = new FormData(this);
-        
-        fetch('/api/households/', {
-            method: 'POST',
-            body: formData,
-            headers: {
-                'X-CSRFToken': document.querySelector('[name=csrfmiddlewaretoken]').value
-            }
-        })
-        .then(response => response.json())
-        .then(data => {
-            if (data.id) {
-                location.reload();
-            } else {
-                alert('Error creating household');
-            }
-        })
-        .catch(error => {
-            console.error('Error:', error);
-            alert('Error creating household');
-        });
-    });
 
     // Calculate Footprint Function
     function calculateFootprint() {

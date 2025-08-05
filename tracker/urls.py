@@ -21,5 +21,6 @@ urlpatterns = [
     path('', views.dashboard, name='dashboard'),
     path('register/', views.register, name='register'),
     path('add-data/', views.add_data, name='add_data'),
+    path('create-household/', views.create_household, name='create_household'),
     path('household/<int:household_id>/', views.household_detail, name='household_detail'),
 ]

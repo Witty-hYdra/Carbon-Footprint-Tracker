@@ -10,6 +10,7 @@ from django.contrib.auth.forms import UserCreationForm
 from django.contrib import messages
 from datetime import datetime, timedelta
 from django.db.models import Q
+from django.http import JsonResponse
 
 from .models import (
     Household, EnergyUsage, Transportation, Diet,
@@ -220,6 +221,22 @@ def dashboard(request):
     """Main dashboard view"""
     user_households = Household.objects.filter(members=request.user)
     
+    # Handle household creation via POST
+    if request.method == 'POST' and request.POST.get('action') == 'create_household':
+        try:
+            household = Household.objects.create(
+                name=request.POST.get('name'),
+                household_size=int(request.POST.get('household_size', 1)),
+                address=request.POST.get('address', ''),
+                created_by=request.user
+            )
+            household.members.add(request.user)
+            messages.success(request, f'Household "{household.name}" created successfully!')
+            return redirect('dashboard')
+        except Exception as e:
+            messages.error(request, f'Error creating household: {str(e)}')
+            return redirect('dashboard')
+    
     context = {
         'households': user_households,
         'user': request.user,
@@ -245,6 +262,42 @@ def dashboard(request):
         })
     
     return render(request, 'tracker/dashboard.html', context)
+
+
+@login_required
+def create_household(request):
+    """Create household via AJAX"""
+    if request.method == 'POST':
+        try:
+            household = Household.objects.create(
+                name=request.POST.get('name'),
+                household_size=int(request.POST.get('household_size', 1)),
+                address=request.POST.get('address', ''),
+                created_by=request.user
+            )
+            household.members.add(request.user)
+            
+            if request.headers.get('X-Requested-With') == 'XMLHttpRequest':
+                return JsonResponse({
+                    'success': True,
+                    'message': f'Household "{household.name}" created successfully!',
+                    'household_id': household.id
+                })
+            else:
+                messages.success(request, f'Household "{household.name}" created successfully!')
+                return redirect('dashboard')
+                
+        except Exception as e:
+            if request.headers.get('X-Requested-With') == 'XMLHttpRequest':
+                return JsonResponse({
+                    'success': False,
+                    'message': f'Error creating household: {str(e)}'
+                })
+            else:
+                messages.error(request, f'Error creating household: {str(e)}')
+                return redirect('dashboard')
+    
+    return redirect('dashboard')
 
 
 @login_required
