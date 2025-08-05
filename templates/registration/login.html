@@ -29,7 +29,7 @@
                                 <span class="input-group-text">
                                     <i class="fas fa-user"></i>
                                 </span>
-                                {{ form.username }}
+                                <input type="text" class="form-control" name="username" id="{{ form.username.id_for_label }}" required>
                             </div>
                         </div>
 
@@ -39,7 +39,7 @@
                                 <span class="input-group-text">
                                     <i class="fas fa-lock"></i>
                                 </span>
-                                {{ form.password }}
+                                <input type="password" class="form-control" name="password" id="{{ form.password.id_for_label }}" required>
                             </div>
                         </div>
 
