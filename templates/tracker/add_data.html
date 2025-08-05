@@ -1,0 +1,335 @@
+{% extends 'base.html' %}
+
+{% block title %}Add Data - Carbon Footprint Tracker{% endblock %}
+
+{% block content %}
+<div class="container-fluid">
+    <div class="row mb-4">
+        <div class="col-12">
+            <h1 class="h2 text-primary">
+                <i class="fas fa-plus-circle me-2"></i>Add New Data
+            </h1>
+            <p class="text-muted">Record your household's energy usage, transportation, and diet information</p>
+        </div>
+    </div>
+
+    {% if not households %}
+        <div class="row">
+            <div class="col-12">
+                <div class="alert alert-warning">
+                    <i class="fas fa-exclamation-triangle me-2"></i>
+                    You need to create a household first before adding data.
+                    <a href="{% url 'dashboard' %}" class="alert-link">Go to Dashboard</a>
+                </div>
+            </div>
+        </div>
+    {% else %}
+        <div class="row">
+            <div class="col-12">
+                <!-- Data Type Selection Tabs -->
+                <ul class="nav nav-tabs" id="dataTypeTabs" role="tablist">
+                    <li class="nav-item" role="presentation">
+                        <button class="nav-link active" id="energy-tab" data-bs-toggle="tab" data-bs-target="#energy" type="button" role="tab">
+                            <i class="fas fa-bolt me-2"></i>Energy Usage
+                        </button>
+                    </li>
+                    <li class="nav-item" role="presentation">
+                        <button class="nav-link" id="transportation-tab" data-bs-toggle="tab" data-bs-target="#transportation" type="button" role="tab">
+                            <i class="fas fa-car me-2"></i>Transportation
+                        </button>
+                    </li>
+                    <li class="nav-item" role="presentation">
+                        <button class="nav-link" id="diet-tab" data-bs-toggle="tab" data-bs-target="#diet" type="button" role="tab">
+                            <i class="fas fa-utensils me-2"></i>Diet
+                        </button>
+                    </li>
+                </ul>
+
+                <!-- Tab Content -->
+                <div class="tab-content" id="dataTypeTabContent">
+                    <!-- Energy Usage Tab -->
+                    <div class="tab-pane fade show active" id="energy" role="tabpanel">
+                        <div class="card border-0 shadow-sm">
+                            <div class="card-header bg-warning bg-opacity-10">
+                                <h5 class="mb-0 text-warning">
+                                    <i class="fas fa-bolt me-2"></i>Energy Usage Data
+                                </h5>
+                            </div>
+                            <div class="card-body">
+                                <form method="post">
+                                    {% csrf_token %}
+                                    <input type="hidden" name="data_type" value="energy">
+                                    
+                                    <div class="row">
+                                        <div class="col-md-6 mb-3">
+                                            <label for="household" class="form-label">Household</label>
+                                            <select class="form-select" name="household" required>
+                                                <option value="">Select Household</option>
+                                                {% for household in households %}
+                                                    <option value="{{ household.id }}">{{ household.name }}</option>
+                                                {% endfor %}
+                                            </select>
+                                        </div>
+                                        
+                                        <div class="col-md-6 mb-3">
+                                            <label for="energy_type" class="form-label">Energy Type</label>
+                                            <select class="form-select" name="energy_type" required>
+                                                <option value="">Select Energy Type</option>
+                                                {% for value, label in energy_types %}
+                                                    <option value="{{ value }}">{{ label }}</option>
+                                                {% endfor %}
+                                            </select>
+                                        </div>
+                                    </div>
+                                    
+                                    <div class="row">
+                                        <div class="col-md-4 mb-3">
+                                            <label for="usage_amount" class="form-label">Usage Amount</label>
+                                            <input type="number" class="form-control" name="usage_amount" step="0.01" min="0" required>
+                                        </div>
+                                        
+                                        <div class="col-md-4 mb-3">
+                                            <label for="unit" class="form-label">Unit</label>
+                                            <select class="form-select" name="unit">
+                                                <option value="kWh">kWh</option>
+                                                <option value="therms">Therms</option>
+                                                <option value="gallons">Gallons</option>
+                                                <option value="cubic_feet">Cubic Feet</option>
+                                            </select>
+                                        </div>
+                                        
+                                        <div class="col-md-4 mb-3">
+                                            <label for="bill_amount" class="form-label">Bill Amount ($)</label>
+                                            <input type="number" class="form-control" name="bill_amount" step="0.01" min="0">
+                                        </div>
+                                    </div>
+                                    
+                                    <div class="row">
+                                        <div class="col-md-6 mb-3">
+                                            <label for="date_recorded" class="form-label">Date</label>
+                                            <input type="date" class="form-control" name="date_recorded" required>
+                                        </div>
+                                    </div>
+                                    
+                                    <button type="submit" class="btn btn-warning">
+                                        <i class="fas fa-save me-2"></i>Save Energy Data
+                                    </button>
+                                </form>
+                            </div>
+                        </div>
+                    </div>
+
+                    <!-- Transportation Tab -->
+                    <div class="tab-pane fade" id="transportation" role="tabpanel">
+                        <div class="card border-0 shadow-sm">
+                            <div class="card-header bg-danger bg-opacity-10">
+                                <h5 class="mb-0 text-danger">
+                                    <i class="fas fa-car me-2"></i>Transportation Data
+                                </h5>
+                            </div>
+                            <div class="card-body">
+                                <form method="post">
+                                    {% csrf_token %}
+                                    <input type="hidden" name="data_type" value="transportation">
+                                    
+                                    <div class="row">
+                                        <div class="col-md-6 mb-3">
+                                            <label for="household" class="form-label">Household</label>
+                                            <select class="form-select" name="household" required>
+                                                <option value="">Select Household</option>
+                                                {% for household in households %}
+                                                    <option value="{{ household.id }}">{{ household.name }}</option>
+                                                {% endfor %}
+                                            </select>
+                                        </div>
+                                        
+                                        <div class="col-md-6 mb-3">
+                                            <label for="transport_type" class="form-label">Transportation Type</label>
+                                            <select class="form-select" name="transport_type" required>
+                                                <option value="">Select Transportation Type</option>
+                                                {% for value, label in transport_types %}
+                                                    <option value="{{ value }}">{{ label }}</option>
+                                                {% endfor %}
+                                            </select>
+                                        </div>
+                                    </div>
+                                    
+                                    <div class="row">
+                                        <div class="col-md-4 mb-3">
+                                            <label for="distance" class="form-label">Distance (miles)</label>
+                                            <input type="number" class="form-control" name="distance" step="0.1" min="0" required>
+                                        </div>
+                                        
+                                        <div class="col-md-4 mb-3">
+                                            <label for="frequency" class="form-label">Frequency</label>
+                                            <select class="form-select" name="frequency">
+                                                <option value="daily">Daily</option>
+                                                <option value="weekly">Weekly</option>
+                                                <option value="monthly">Monthly</option>
+                                                <option value="yearly">Yearly</option>
+                                            </select>
+                                        </div>
+                                        
+                                        <div class="col-md-4 mb-3">
+                                            <label for="fuel_efficiency" class="form-label">Fuel Efficiency (MPG)</label>
+                                            <input type="number" class="form-control" name="fuel_efficiency" step="0.1" min="0">
+                                        </div>
+                                    </div>
+                                    
+                                    <div class="row">
+                                        <div class="col-md-6 mb-3">
+                                            <label for="date_recorded" class="form-label">Date</label>
+                                            <input type="date" class="form-control" name="date_recorded" required>
+                                        </div>
+                                    </div>
+                                    
+                                    <button type="submit" class="btn btn-danger">
+                                        <i class="fas fa-save me-2"></i>Save Transportation Data
+                                    </button>
+                                </form>
+                            </div>
+                        </div>
+                    </div>
+
+                    <!-- Diet Tab -->
+                    <div class="tab-pane fade" id="diet" role="tabpanel">
+                        <div class="card border-0 shadow-sm">
+                            <div class="card-header bg-success bg-opacity-10">
+                                <h5 class="mb-0 text-success">
+                                    <i class="fas fa-utensils me-2"></i>Diet Data
+                                </h5>
+                            </div>
+                            <div class="card-body">
+                                <form method="post">
+                                    {% csrf_token %}
+                                    <input type="hidden" name="data_type" value="diet">
+                                    
+                                    <div class="row">
+                                        <div class="col-md-6 mb-3">
+                                            <label for="household" class="form-label">Household</label>
+                                            <select class="form-select" name="household" required>
+                                                <option value="">Select Household</option>
+                                                {% for household in households %}
+                                                    <option value="{{ household.id }}">{{ household.name }}</option>
+                                                {% endfor %}
+                                            </select>
+                                        </div>
+                                        
+                                        <div class="col-md-6 mb-3">
+                                            <label for="diet_type" class="form-label">Diet Type</label>
+                                            <select class="form-select" name="diet_type" required>
+                                                <option value="">Select Diet Type</option>
+                                                {% for value, label in diet_types %}
+                                                    <option value="{{ value }}">{{ label }}</option>
+                                                {% endfor %}
+                                            </select>
+                                        </div>
+                                    </div>
+                                    
+                                    <div class="row">
+                                        <div class="col-md-6 mb-3">
+                                            <label for="food_category" class="form-label">Food Category</label>
+                                            <select class="form-select" name="food_category" required>
+                                                <option value="">Select Food Category</option>
+                                                {% for value, label in food_categories %}
+                                                    <option value="{{ value }}">{{ label }}</option>
+                                                {% endfor %}
+                                            </select>
+                                        </div>
+                                        
+                                        <div class="col-md-6 mb-3">
+                                            <label for="weekly_consumption" class="form-label">Weekly Consumption (servings)</label>
+                                            <input type="number" class="form-control" name="weekly_consumption" step="0.1" min="0" required>
+                                        </div>
+                                    </div>
+                                    
+                                    <div class="row">
+                                        <div class="col-md-4 mb-3">
+                                            <label for="local_sourced_percentage" class="form-label">Local Sourced (%)</label>
+                                            <input type="number" class="form-control" name="local_sourced_percentage" min="0" max="100" value="0">
+                                        </div>
+                                        
+                                        <div class="col-md-4 mb-3">
+                                            <label for="organic_percentage" class="form-label">Organic (%)</label>
+                                            <input type="number" class="form-control" name="organic_percentage" min="0" max="100" value="0">
+                                        </div>
+                                        
+                                        <div class="col-md-4 mb-3">
+                                            <label for="date_recorded" class="form-label">Date</label>
+                                            <input type="date" class="form-control" name="date_recorded" required>
+                                        </div>
+                                    </div>
+                                    
+                                    <button type="submit" class="btn btn-success">
+                                        <i class="fas fa-save me-2"></i>Save Diet Data
+                                    </button>
+                                </form>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+
+        <!-- Tips Section -->
+        <div class="row mt-5">
+            <div class="col-12">
+                <div class="card border-0 shadow-sm">
+                    <div class="card-header">
+                        <h5 class="mb-0">
+                            <i class="fas fa-info-circle me-2"></i>Data Entry Tips
+                        </h5>
+                    </div>
+                    <div class="card-body">
+                        <div class="row">
+                            <div class="col-md-4">
+                                <h6 class="text-warning">
+                                    <i class="fas fa-bolt me-2"></i>Energy Usage
+                                </h6>
+                                <ul class="list-unstyled small text-muted">
+                                    <li>• Check your utility bills for accurate data</li>
+                                    <li>• Record monthly usage for best tracking</li>
+                                    <li>• Include all energy sources (electricity, gas, etc.)</li>
+                                </ul>
+                            </div>
+                            <div class="col-md-4">
+                                <h6 class="text-danger">
+                                    <i class="fas fa-car me-2"></i>Transportation
+                                </h6>
+                                <ul class="list-unstyled small text-muted">
+                                    <li>• Estimate daily commute distances</li>
+                                    <li>• Include all forms of transportation</li>
+                                    <li>• Consider work-from-home days</li>
+                                </ul>
+                            </div>
+                            <div class="col-md-4">
+                                <h6 class="text-success">
+                                    <i class="fas fa-utensils me-2"></i>Diet
+                                </h6>
+                                <ul class="list-unstyled small text-muted">
+                                    <li>• Estimate weekly servings consumed</li>
+                                    <li>• Higher local/organic percentages reduce emissions</li>
+                                    <li>• Track different food categories separately</li>
+                                </ul>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+    {% endif %}
+</div>
+{% endblock %}
+
+{% block extra_js %}
+<script>
+    // Set today's date as default
+    document.addEventListener('DOMContentLoaded', function() {
+        const today = new Date().toISOString().split('T')[0];
+        const dateInputs = document.querySelectorAll('input[name="date_recorded"]');
+        dateInputs.forEach(input => {
+            input.value = today;
+        });
+    });
+</script>
+{% endblock %}
